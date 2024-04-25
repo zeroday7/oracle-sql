@@ -9,6 +9,127 @@ import java.util.HashMap;
 import vo.Emp;
 
 public class EmpDAO {
+	// q006GroupBy.jsp
+	public static ArrayList<HashMap<String, Object>> selectEmpSalStats() 
+								throws Exception {
+		ArrayList<HashMap<String, Object>> list 
+							= new ArrayList<>();
+		Connection conn = DBHelper.getConnection();
+		String sql = "SELECT"
+				+ " grade"
+				+ ", COUNT(*) count"
+				+ ", SUM(sal) sum"
+				+ ", AVG(sal) avg"
+				+ ", MAX(sal) max"
+				+ ", MIN(sal) min"
+				+ " FROM emp"
+				+ " GROUP BY grade"
+				+ " ORDER BY grade ASC";
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		ResultSet rs = stmt.executeQuery();
+		
+		while(rs.next()) {
+			HashMap<String, Object> m = new HashMap<>();
+			m.put("grade", rs.getInt("grade"));
+			m.put("count", rs.getInt("count"));
+			m.put("sum", rs.getInt("sum"));
+			m.put("avg", rs.getInt("avg"));
+			m.put("max", rs.getInt("max"));
+			m.put("min", rs.getInt("min"));
+			list.add(m);
+		}
+		
+		conn.close();
+		return list;
+	}
+	
+	// q005OrderBy.jsp
+	public static ArrayList<Emp> selectEmpListSort(
+			String col, String sort) throws Exception {
+		
+		// 매개값 디버깅
+		System.out.println(col + " <--EmpDAO.selectEmpListSort param col");
+		System.out.println(sort + " <--EmpDAO.selectEmpListSort param sort");
+		
+		ArrayList<Emp> list = new ArrayList<>();
+		Connection conn = DBHelper.getConnection();
+		
+		String sql = "SELECT empno, ename"
+				+ " FROM emp";
+		
+		if(col !=null && sort != null) {
+			sql = sql + " ORDER BY "+col+" "+sort;
+		}
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		System.out.println(stmt);
+		
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Emp e = new Emp();
+			e.setEmpNo(rs.getInt("empno"));
+			e.setEname(rs.getString("ename"));
+			list.add(e);
+		}
+		
+		conn.close();
+		return list;	
+	}
+	
+	// q004WhereIn.jsp
+	public static ArrayList<Emp> selectEmpListByGrade
+				(ArrayList<Integer> ckList) throws Exception {
+		ArrayList<Emp> list = new ArrayList<>();
+		Connection conn = DBHelper.getConnection();
+		String sql = "SELECT ename, grade"
+				+ " FROM emp"
+				+ " WHERE grade IN ";
+		PreparedStatement stmt = null;
+		if(ckList.size() == 1) {
+			sql = sql + "(?)";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, ckList.get(0));
+		} else if(ckList.size() == 2) {
+			sql = sql + "(?,?)";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, ckList.get(0));
+			stmt.setInt(2, ckList.get(1));
+		} else if(ckList.size() == 3) {
+			sql = sql + "(?,?,?)";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, ckList.get(0));
+			stmt.setInt(2, ckList.get(1));
+			stmt.setInt(3, ckList.get(2));
+		} else if(ckList.size() == 4) {
+			sql = sql + "(?,?,?,?)";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, ckList.get(0));
+			stmt.setInt(2, ckList.get(1));
+			stmt.setInt(3, ckList.get(2));
+			stmt.setInt(4, ckList.get(3));
+		} else if(ckList.size() == 5) {
+			sql = sql + "(?,?,?,?,?)";
+			stmt = conn.prepareStatement(sql);
+			stmt.setInt(1, ckList.get(0));
+			stmt.setInt(2, ckList.get(1));
+			stmt.setInt(3, ckList.get(2));
+			stmt.setInt(4, ckList.get(3));
+			stmt.setInt(5, ckList.get(4));
+		}
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			Emp e = new Emp();
+			e.setEname(rs.getString("ename"));
+			e.setGrade(rs.getInt("grade"));
+			list.add(e);
+		}
+		
+		conn.close();
+		
+		return list;
+	}
+	
+	
 	// q003Case.jsp
 	public static ArrayList<HashMap<String, String>> selectJobCaseList() {
 		/*

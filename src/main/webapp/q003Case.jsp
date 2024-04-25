@@ -12,6 +12,6 @@
 	<title></title>
 </head>
 <body>
-
+	<h1>CASE식을 이용한 정렬</h1>
 </body>
 </html>
